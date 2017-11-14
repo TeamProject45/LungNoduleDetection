@@ -13,7 +13,33 @@
 </head>
 
 <style>
-    input[type=text] {
+    input[type=text],
+    select {
+        width: 100%;
+        padding: 12px 20px;
+        margin: 8px 0;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    input[type=submit] {
+        width: 100%;
+        background-color: #4CAF50;
+        color: white;
+        padding: 14px 20px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    input[type=submit]:hover {
+        background-color: #45a049;
+    }
+
+    .search {
         width: 60%;
         height: 40px;
         box-sizing: border-box;
@@ -49,20 +75,20 @@
     .pagination a:hover:not(.active) {
         background-color: #ddd;
         border-radius: 5px;
-    } 
-    .tag
-    {
-        margin-left:20px;
-	padding:0 10px 0 12px;
-	background:#00DA2F;
-	color:#fff;
-	text-decoration:none;
-	-moz-border-radius-bottomright:4px;
-	-webkit-border-bottom-right-radius:4px;	
-	border-bottom-right-radius:4px;
-	-moz-border-radius-topright:4px;
-	-webkit-border-top-right-radius:4px;	
-	border-top-right-radius:4px;	
+    }
+
+    .tag {
+        margin-left: 20px;
+        padding: 0 10px 0 12px;
+        background: #00DA2F;
+        color: #fff;
+        text-decoration: none;
+        -moz-border-radius-bottomright: 4px;
+        -webkit-border-bottom-right-radius: 4px;
+        border-bottom-right-radius: 4px;
+        -moz-border-radius-topright: 4px;
+        -webkit-border-top-right-radius: 4px;
+        border-top-right-radius: 4px;
     }
 </style>
 
@@ -75,7 +101,7 @@
             <a href="#" class="w3-bar-item w3-button w3-mobile">Home</a>
             <a href="#" class="w3-bar-item w3-button w3-mobile">About us</a>
             <div class="w3-dropdown-hover w3-blue w3-right w3-mobile">
-                <button class="w3-button"><span class="glyphicon glyphicon-user"></span> สรศักดิ์<span class="caret" style ="margin-left:10px"></span>  </button>
+                <button class="w3-button"><span class="glyphicon glyphicon-user"></span> กรกมล<span class="caret" style ="margin-left:10px"></span>  </button>
                 <div class="w3-dropdown-content w3-bar-block w3-card-4" style="right:0">
                     <a href="#" class="w3-bar-item w3-button">Edit Profile</a>
                     <a href="#" class="w3-bar-item w3-button">Change Password</a>
@@ -94,7 +120,7 @@
             </div>
             <div class="w3-col m8 l8" style="display: inline-block">
                 <center>
-                    <input type="text" onkeyup="FilterTable()" id="Filter_input" name="search" placeholder="Search..">
+                    <input class="search" type="text" onkeyup="FilterTable()" id="Filter_input" name="search" placeholder="Search..">
                 </center>
             </div>
         </div>
@@ -105,31 +131,35 @@
                 <thead>
                     <tr>
                         <th class="col-sm-1">Image</th>
-                        <th class="col-sm-5">Patient's name</th>
+                        <th class="col-sm-4">Patient's name</th>
+                        <th class="col-sm-1">Gender</th>
+                        <th class="col-sm-1">Age</th>
                         <th class="col-sm-2">Date</th>
-                        <th class="col-sm-2">Prediction</th>
+                        <th class="col-sm-1">Prediction</th>
                         <th class="col-sm-2">Fact</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(person,index) in persons">
+                    <tr v-for="(person,index) in sortedData">
                         <td align="center">
                             <div class="w3-container">
                                 <button v-on:click="imageClicked(person)" class="w3-button w3-white"><span class="glyphicon glyphicon-search"></span></button>
                             </div>
                         </td>
                         <td>{{person.name}}</td>
+                        <td>{{person.gender}}</td>
+                        <td>{{person.age}}</td>
                         <td>{{person.Date}}</td>
                         <td>{{person.Prediction}}</td>
                         <td>
-                           <center>
-                            <span v-if="person.Stat"><p>{{person.Fact}}</p>
-                            <!-- <button class="w3-button w3-green w3-round" v-on:click="updateFact(index,0)"  style="height:20px;font-size:10;padding-Top:3">Edit</button></span> -->
-                                    
-                            </span>
+                            <center>
+                                <span v-if="person.Stat"><p>{{person.Fact}}</p>
+                            <!-- <button class="w3-button w3-green w3-round" v-on:click="updateFact(index,0)"  style="height:20px;font-size:10;padding-Top:3">Edit</button></span>                                -->
+
+                                </span>
                                 <span v-else> <button class="w3-button w3-red w3-round" v-on:click="updateFact(index,1)" style="height:20px;font-size:10;padding-Top:3">Yes</button>
                                 <button class="w3-button w3-blue w3-round" v-on:click="updateFact(index,0)"  style="height:20px;font-size:10;padding-Top:3">No</button></span>
-                             
+
                             </center>
                         </td>
                     </tr>
@@ -150,48 +180,75 @@
         </div>
         <!-- End Table -->
         <!-- imageModal-->
-        <div id="imageModal" class="modal fade" style="width:800 !important;margin:auto;" >
-                <!-- Modal content-->
-                <div class="modal-content">
-                        <div class="modal-header">
-                                <span class="close" data-dismiss="modal" >&times;</span>
-                                <h2 style="font-weight: 700;">{{modal_name}}
-                                    <span v-show="modal_stat" v-if="modal_result=='No'" class="tag w3-green w3-padding" style="font-size:medium;font-weight: 700;">don't have a nodule in lung</span>
-                                    <span v-show="modal_stat" v-if="modal_result=='Yes'" class="tag w3-red w3-padding" style="font-size:medium;font-weight: 700;">Have a nodule in lung</span>
-                                </h2>
-                        </div>
-                    <div class="modal-body">
-                        <center>
-                        <img v-bind:src="modal_imgURL" style="width:700">
-                        </center>
-                    </div>
-                    <div class="modal-footer" style="height:10px">
-                            
-                    </div>
+        <div id="imageModal" class="modal fade" style="width:800 !important;margin:auto;">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="close" data-dismiss="modal">&times;</span>
+                    <h2 style="font-weight: 700;">{{modal_name}}
+                        <span v-show="modal_stat" v-if="modal_result=='No'" class="tag w3-green w3-padding" style="font-size:medium;font-weight: 700;">don't have a nodule in lung</span>
+                        <span v-show="modal_stat" v-if="modal_result=='Yes'" class="tag w3-red w3-padding" style="font-size:medium;font-weight: 700;">Have a nodule in lung</span>
+                    </h2>
                 </div>
+                <div class="modal-body">
+                    <center>
+                        <img v-bind:src="modal_imgURL" style="width:700">
+                    </center>
+                </div>
+                <div class="modal-footer" style="height:10px">
+
+                </div>
+            </div>
         </div>
         <!--END imageModal-->
 
         <!-- uploadModal-->
-        <div id="uploadModal" class="modal fade" style="width:800 !important;margin:40 auto;" >
-                <!-- Modal content-->
-                <div class="modal-content">
-                        <div class="modal-header">
-                                <span class="close" data-dismiss="modal" >&times;</span>
-                                <h2>Upload Chest X-Ray image</h2>
-                        </div>
-                    <div class="modal-body">
-                        <center>
-                         
-                        </center>
-                    </div>
-                    <div class="modal-footer" style="height:10px">
-                            
-                    </div>
+        <div id="uploadModal" class="modal fade" style="width:800 !important;margin:40 auto;">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="close" data-dismiss="modal">&times;</span>
+                    <h2>Upload Chest X-Ray image</h2>
                 </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <label for="name">Patient's name</label>
+                                <input v-model:value="u_name" type="text" id="name" name="firstname" placeholder="Patient's name..">
+
+                                <label for="gender">Gender</label> 
+                                <select id="gender" name="gender" v-model:value="u_gender">
+                                  <option value="Female">Female</option>
+                                  <option value="Male">Male</option>
+                                </select>
+                                <label for="age">Age</label>
+                                <input  v-model:value="u_age" type="text" id="age" name="age" placeholder="Patient's age..">
+
+                                <label for="uploadimg">Image: </label>
+                                <input @change="clickUpload" type="file" id="img" name="image" value="Upload image">
+                                <div class="progress" style="margin-top:5px">
+                                    <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="progress_value" aria-valuemin="0"
+                                        aria-valuemax="100" v-bind:style="{width:progress_value+'%'}">
+                                        {{progress_value}}%
+                                    </div>
+                                </div>
+
+                                <input @click="clickSubmit" class="w3-button w3-blue" value="Submit"  data-dismiss="modal">
+                            </div>
+                            <div class="col-sm-6">
+                                <img v-bind:src="imageUpload" v-show="modal_stat" style="width:100%">
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+                <div class="modal-footer" style="height:10px">
+
+                </div>
+            </div>
         </div>
         <!--END uploadModal-->
-
     </div>
     <!--End App-->
     <script src="script.js"></script>
@@ -199,40 +256,102 @@
         new Vue({
             el: '#app',
             data: {
+                progress_value: 0,
                 modal_imgURL: '',
-                modal_name:'Unknow',
-                modal_result:'',
-                modal_stat:0,
+                modal_name: 'Unknow',
+                modal_result: '',
+                modal_stat: 0,
+                imageUpload: '',
+                hci_make_state:0,                
+                u_name:'',
+                u_age:'',
+                u_date:'19/09/2017',
+                u_gender:'',
+                u_image:'image/JPCLN008_p.bmp',
                 persons: [
-                    { imgURL: 'image/JPCLN001_Adjust.png', name: 'John Norwom', Date: '14/09/2017', Prediction: 'Yes', Fact: '',Stat:0 },
-                    { imgURL: 'image/JPCLN001_p.bmp', name: 'Mary Marron', Date: '14/09/2017', Prediction: 'Yes', Fact: '' ,Stat:0},
-                    { imgURL: '', name: 'July Jissy', Date: '14/09/2017', Prediction: 'No', Fact: 'No' ,Stat:1},
-                    { imgURL: '', name: 'Chris Cool', Date: '14/09/2017', Prediction: 'Yes', Fact: '',Stat:0 },
-                    { imgURL: '', name: 'Thomas Sammuku', Date: '14/09/2017', Prediction: 'No', Fact: 'Yes',Stat:1 },
-                    { imgURL: '', name: '	Alex Xexy', Date: '14/09/2017', Prediction: 'No', Fact: '',Stat:0 },
-                    { imgURL: '', name: '	Tonny Nyni', Date: '14/09/2017', Prediction: 'Yes', Fact: 'Yes',Stat:1 },
+                    { imgURL: 'image/JPCLN001_p.bmp', gender: 'female', name: 'John Norwom', age: 60, Date: '14/09/2017', Prediction: 'Yes', Fact: '', Stat: 0 },
+                    { imgURL: 'image/JPCLN002_p.bmp', gender: 'female', name: 'Mary Marron', age:50, Date: '13/09/2017', Prediction: 'Yes', Fact: '', Stat: 0 },
+                    { imgURL: 'image/JPCLN002_p.bmp', gender: 'male', name: 'July Jissy', age: 47, Date: '12/09/2017', Prediction: 'No', Fact: 'No', Stat: 1 },
+                    { imgURL: 'image/JPCLN002_p.bmp', gender: 'female', name: 'Chris Cool', age: 65, Date: '11/09/2017', Prediction: 'Yes', Fact: '', Stat: 0 },
+                    { imgURL: 'image/JPCLN002_p.bmp', gender: 'female', name: 'Thomas Sammuku', age: 55, Date: '10/09/2017', Prediction: 'No', Fact: 'Yes', Stat: 1 },
+                    { imgURL: 'image/JPCLN003_p.bmp', gender: 'male', name: '	Alex Xexy', age: 60, Date: '10/09/2017', Prediction: 'No', Fact: '', Stat: 0 },
+                    { imgURL: 'image/JPCLN003_p.bmp', gender: 'male', name: '	Tonny Nyni', age: 60, Date: '09/09/2017', Prediction: 'Yes', Fact: 'Yes', Stat: 1 },
                 ]
             },
             methods: {
                 imageClicked(item) {
                     this.modal_imgURL = item.imgURL;
-                    this.modal_name=item.name;
-                    this.modal_result=item.Fact;
-                    this.modal_stat=item.Stat,
-                    $("#imageModal").modal('show');
+                    this.modal_name = item.name;
+                    this.modal_result = item.Fact;
+                    this.modal_stat = item.Stat,
+                        $("#imageModal").modal('show');
                 },
-                updateFact(item,value)
-                {
-                    if(value==1)
+                updateFact(item, value) {
+                    if (value == 1) {
+                        this.persons[item].Fact = "Yes";
+                    } else {
+                        this.persons[item].Fact = "No";
+                    }
+                    this.persons[item].Stat = 1;
+                },
+                increase(value) {
+                    this.progress_value += value;
+                },
+                //function for HCI
+                clickUpload() {
+                    for (i = 0; i < 100; i += 1) { this.increase(1); }
+                    if (this.progress_value == 100) {
+                    this.imageUpload = 'image/JPCLN003_p.bmp';
+                        this.modal_stat = 1;                    
+                    }
+                    else {
+                    this.imageUpload = '';
+                        this.modal_stat = 0;                    
+                    }
+                },
+                clickSubmit(){
+                    this.hci_make_state=1;
+                    //  this.persons.push({imgURL:this.u_image, gender:this.u_gender, name:this.u_name, age: this.u_age, Date: this.u_date, Prediction: this.u_perdic, Fact:'', Stat: 0});    
+                    //  console.log(this.persons);
+                }
+            },
+            computed: {
+                    sortedData: function () {
+                        function compare(a, b) {
+                            if (a.Date > b.Date)
+                                return -1;
+                            if (a.Date < b.Date)
+                                return 1;
+                            return 0;
+                        }
+                        return  this.persons.sort(compare) ;//this.persons.sort(compare);
+                    }
+            },
+            watch: {//for HCI
+                progress_value: function (value) {
+                    var vm = this;
+                    setTimeout(function () {
+                        vm.progress_value = 0;
+                        vm.imageUpload = '';
+                        vm.modal_stat = 0;
+                    }, 10000);
+                },
+                hci_make_state:function(value){
+                    if(this.hci_make_state==1)
                     {
-                        this.persons[item].Fact="Yes";
-                    }else{
-                        this.persons[item].Fact="No";
-                    }                    
-                    this.persons[item].Stat=1;
+                        this.persons.push({imgURL:this.u_image, gender:this.u_gender, name:this.u_name, age: this.u_age, Date: this.u_date, Prediction: 'Yes', Fact:'', Stat: 0});
+                        u_image='';
+                        u_name='';
+                        u_age='';
+                        u_date='19/09/2017';
+                        u_gender='';
+                        this.hci_make_state=0;
+                        sortedArray();
+                    }
                 }
             }
-        })
+
+        });
     </script>
 
 </body>
